@@ -1,0 +1,5 @@
+player : 
+{
+  id: socket.id, name: playerName, role: '', isAlive: true, isReady: false
+}
+eg = {xyz, z, spy, true, true}
