@@ -9,7 +9,7 @@ import PlayerKickedScreen from './components/PlayerKickedScreen';
 import NoMajorityScreen from './components/NoMajorityScreen';
 
 
-const socket = io('http://localhost:4000', { autoConnect: false });
+const socket = io('https://mindmesh-7zpy.onrender.com', { autoConnect: false });
 
 export default function App() {
   // UI screens
