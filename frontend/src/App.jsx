@@ -129,7 +129,8 @@ export default function App() {
     });
 
     socket.on('gameOver', ({ winner, codeWord }) => {
-      setWinner(`${winner.toUpperCase()} wins! Word: "${codeWord}"`);
+      //setWinner(`${winner.toUpperCase()} wins! Word: "${codeWord}"`);
+      setWinner([winner.toUpperCase, codeWord]);
       setScreen('gameOver');
     });
 
@@ -201,10 +202,9 @@ export default function App() {
   };
   
 
-  const replay = () => socket.emit('nextGame', { roomId: room });
+  const replay = () => setTimeout(socket.emit('nextGame', { roomId: room }), 2000);
 
   const alive = players.filter((p) => p.isAlive);
-
 
   // Render
   if (screen === 'home') {

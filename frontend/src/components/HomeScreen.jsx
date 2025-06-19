@@ -12,23 +12,23 @@ export default function HomeScreen({
   error,
 }) {
   return (
-    <div className="bg-[url('/bg1.png')] bg-cover bg-center bg-no-repeat min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative z-10 font-nunito">
+    <div className="bg-gray-900 min-h-screen overflow-hidden w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative z-10">
       {/* Title */}
-      <h1 className="galada-regular text-4xl sm:text-5xl font-extrabold mb-10 sm:mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 drop-shadow-lg tracking-wide text-center">
+      <h1 className="text-4xl sm:text-5xl font-extrabold mb-8 text-white tracking-wide">
         MindMesh
       </h1>
 
-      <div className="w-full max-w-sm space-y-5 flex flex-col items-center">
+      <div className="w-full max-w-sm space-y-5 flex flex-col items-center font-nunito">
         {/* Name Input */}
         <div className="w-max">
-          <label htmlFor="name-input" className="flex items-center text-base sm:text-lg text-violet-300 mb-2 font-bold">
-            <FaUserCircle className="mr-2 text-violet-600 text-xl sm:text-2xl" />
-            Enter name
+          <label htmlFor="name-input" className="flex items-center sm:text-lg mb-2 font-sans text-gray-200 ">
+            <FaUserCircle className="mr-2 text-xl sm:text-2xl" />
+            <span className='text-sm font-medium tracking-widest'>ENTER NAME </span>         
           </label>
           <input
             id="name-input"
             type="text"
-            className="w-52 px-4 py-2 rounded-lg text-white bg-[#1b1530]/60 backdrop-blur-md placeholder-purple-300 border border-purple-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            className="w-52 px-4 py-2 rounded-lg text-black font-bold bg-white backdrop-blur-md placeholder-slate-400 border border-black focus:outline-none focus:ring-2 focus:ring-black"
             placeholder="Your Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -42,7 +42,7 @@ export default function HomeScreen({
         {/* Join Code Input */}
         <input
           type="text"
-          className="w-52 px-4 py-2 rounded-lg text-white bg-[#1b1530]/60 backdrop-blur-md placeholder-purple-300 border border-purple-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          className="w-52 px-4 py-2 rounded-lg text-black font-bold bg-white backdrop-blur-md placeholder-slate-400 border border-black focus:outline-none focus:ring-2 focus:ring-black"
           placeholder="Room Code"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}

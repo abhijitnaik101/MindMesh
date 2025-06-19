@@ -1,16 +1,24 @@
 import React from 'react';
+import { FaUsersSlash } from 'react-icons/fa';
+import { GreenButton } from '../utils/ThemedButton';
 
 export default function NoMajorityScreen({ message, proceed }) {
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-center space-y-6 bg-purple-900 text-white px-4">
-      <h1 className="text-4xl font-bold">No Majority Vote</h1>
-      <p className="text-xl">{message}</p>
-      <button
-        onClick={proceed}
-        className="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-lg font-semibold shadow-lg"
-      >
-        Continue →
-      </button>
+    <div className="flex flex-col items-center justify-center h-screen text-center bg-gray-900 px-4 text-white font-sans space-y-8">
+      
+      {/* Icon and Title */}
+      <div className="flex items-center gap-3 text-4xl sm:text-5xl font-extrabold ">
+        <FaUsersSlash />
+        No Majority!
+      </div>
+
+      {/* Message */}
+      <p className="text-lg sm:text-xl text-gray-300 max-w-md">
+        {message}
+      </p>
+
+      {/* Continue Button */}
+      <GreenButton onClick={proceed}>Continue →</GreenButton>
     </div>
   );
 }
