@@ -106,6 +106,7 @@ export default function App() {
       setPlayers((prev) =>
         prev.map(p => p.id === kickedPlayerId ? { ...p, isAlive: false } : p)
       );
+      
     });
     
     
@@ -130,7 +131,7 @@ export default function App() {
 
     socket.on('gameOver', ({ winner, codeWord }) => {
       //setWinner(`${winner.toUpperCase()} wins! Word: "${codeWord}"`);
-      setWinner([winner.toUpperCase, codeWord]);
+      setWinner([winner.toLowerCase(), codeWord]);
       setScreen('gameOver');
     });
 

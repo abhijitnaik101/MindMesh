@@ -7,7 +7,7 @@ export default function NoMajorityScreen({ message, proceed }) {
     <div className="flex flex-col items-center justify-center h-screen text-center bg-gray-900 px-4 text-white font-sans space-y-8">
       
       {/* Icon and Title */}
-      <div className="flex items-center gap-3 text-4xl sm:text-5xl font-extrabold ">
+      <div className="flex items-center gap-3 text-3xl sm:text-3xl font-extrabold ">
         <FaUsersSlash />
         No Majority!
       </div>

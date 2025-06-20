@@ -147,7 +147,7 @@ export default function GameScreen({
                             setLocalSuspected([...localSuspected, h.playerId]);
                             markSuspect(h.playerId);
                           }}
-                          className="px-3 py-1 rounded-full bg-orange-500 hover:bg-rose-500 text-white text-sm font-bold shrink-0 transition"
+                          className="px-3 py-1 rounded-full bg-orange-400 hover:bg-orange-500 text-white text-sm font-bold shrink-0 transition"
                         >
                           sus
                         </button>

@@ -3,7 +3,7 @@ import React from 'react';
 export function BlueButton({ children, onClick }) {
   return (
     <button
-      className="w-52 px-6 py-2 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500 border-2 border-sky-300 shadow-[0_6px_0_#1D4ED8] hover:translate-y-[2px] hover:shadow-[0_4px_0_#1D4ED8] active:translate-y-[4px] active:shadow-[0_4px_0_#1D4ED8] transition-all duration-150"
+      className="w-52 px-6 py-2 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500 border-2 border-sky-400 shadow-[0_6px_0_#1D4ED8] hover:translate-y-[2px] hover:shadow-[0_4px_0_#1D4ED8] active:translate-y-[4px] active:shadow-[0_4px_0_#1D4ED8] transition-all duration-150"
       onClick={onClick}
     >
       <p className="[text-shadow:0px_3px_0_#1B9CD7] text-white font-bold">

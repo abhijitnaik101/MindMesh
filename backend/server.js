@@ -73,20 +73,31 @@ function assignRoles(roomId) {
   });
   room.gameStarted = true;
 }
+function endGameGuess(roomId){
+  let winner = 'citizens';
+  const room = rooms[roomId];
+  if (!room) return;
+  if (room.spyGuessed) {
+    winner = 'spy';
+  }
+  io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
 
+}
 function endGame(roomId) {
   const room = rooms[roomId];
   if (!room) return;
-  let winner = 'citizens';
-  if (room.spyGuessed) {
-    winner = 'spy';
-  } else {
-    const alivePlayers = room.players.filter(p => p.isAlive);
-    if (alivePlayers.length <= 2 && alivePlayers.some(p => p.role === 'spy')) {
-      winner = 'spy';
+  const alivePlayers = room.players.filter(p => p.isAlive);
+  if (alivePlayers.some(p => p.role === 'spy')) {
+    if (alivePlayers.length <= 2) {
+      let winner = 'spy';
+      io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
     }
   }
-  io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
+  else {
+    let winner = 'citizens';
+    io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
+  }
+
 }
 
 function startNextRound(roomId) {
@@ -130,15 +141,15 @@ io.on('connection', socket => {
   });
 
   socket.on('createRoom', ({ playerName }) => {
-  const roomId = generateRoomCode();
-  createRoom(roomId);
-  rooms[roomId].players.push({
-    id: socket.id, name: playerName, role: '', isAlive: true, isReady: false
+    const roomId = generateRoomCode();
+    createRoom(roomId);
+    rooms[roomId].players.push({
+      id: socket.id, name: playerName, role: '', isAlive: true, isReady: false
+    });
+    socket.join(roomId);
+    socket.emit('roomCreated', { roomId });
+    io.to(roomId).emit('lobbyUpdate', { players: rooms[roomId].players }); // Added
   });
-  socket.join(roomId);
-  socket.emit('roomCreated', { roomId });
-  io.to(roomId).emit('lobbyUpdate', { players: rooms[roomId].players }); // Added
-});
 
   socket.on('joinRoom', ({ roomId, playerName }) => {
     const room = rooms[roomId];
@@ -206,64 +217,66 @@ io.on('connection', socket => {
   });
 
   socket.on('proceedToVote', ({ roomId }) => {
-  const room = rooms[roomId];
-  if (!room) return;
+    const room = rooms[roomId];
+    if (!room) return;
 
-  const player = room.players.find(p => p.id === socket.id);
-  if (!player || !player.isAlive) return; // ❌ Dead players can't proceed
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player || !player.isAlive) return; // ❌ Dead players can't proceed
 
-  room.voteReady.add(socket.id);
-  const aliveCount = room.players.filter(p => p.isAlive).length;
-  if (room.voteReady.size === aliveCount) {
-    io.to(roomId).emit('startVoting');
-  }
-});
+    room.voteReady.add(socket.id);
+    const aliveCount = room.players.filter(p => p.isAlive).length;
+    if (room.voteReady.size === aliveCount) {
+      io.to(roomId).emit('startVoting');
+    }
+  });
 
 
   socket.on('submitVote', ({ roomId, votedId }) => {
-  const room = rooms[roomId];
-  if (!room) return;
+    const room = rooms[roomId];
+    if (!room) return;
 
-  const voter = room.players.find(p => p.id === socket.id);
-  if (!voter || !voter.isAlive) return; // ❌ Dead players can't vote
+    const voter = room.players.find(p => p.id === socket.id);
+    if (!voter || !voter.isAlive) return; // ❌ Dead players can't vote
 
-  room.votes.push({ voterId: socket.id, votedId: votedId ?? null });
-  const aliveCount = room.players.filter(p => p.isAlive).length;
+    room.votes.push({ voterId: socket.id, votedId: votedId ?? null });
+    const aliveCount = room.players.filter(p => p.isAlive).length;
 
-  if (room.votes.length === aliveCount) {
-    const voteCounts = {};
-    room.votes.forEach(vote => {
-      if (vote.votedId) voteCounts[vote.votedId] = (voteCounts[vote.votedId] || 0) + 1;
-    });
-    const majorityKickId = Object.keys(voteCounts)
-      .find(id => voteCounts[id] > Math.floor(aliveCount / 2));
-    if (majorityKickId) {
-      const kickedPlayer = room.players.find(p => p.id === majorityKickId);
-      room.players.forEach((player) => player.isAlive = (player.id === majorityKickId) ? false : player.isAlive);
-      if (kickedPlayer) {
-        kickedPlayer.isAlive = false;
-        io.to(roomId).emit('playerKicked', {
-          kickedPlayerId: kickedPlayer.id,
-          kickedPlayerName: kickedPlayer.name,
-          isSpy: kickedPlayer.role === 'spy'
-        });
+    if (room.votes.length === aliveCount) {
+      const voteCounts = {};
+      room.votes.forEach(vote => {
+        if (vote.votedId) voteCounts[vote.votedId] = (voteCounts[vote.votedId] || 0) + 1;
+      });
+      const majorityKickId = Object.keys(voteCounts)
+        .find(id => voteCounts[id] > Math.floor(aliveCount / 2));
+      if (majorityKickId) {
+        const kickedPlayer = room.players.find(p => p.id === majorityKickId);
+        room.players.forEach((player) => player.isAlive = (player.id === majorityKickId) ? false : player.isAlive);
+        if (kickedPlayer) {
+          kickedPlayer.isAlive = false;
+          io.to(roomId).emit('playerKicked', {
+            kickedPlayerId: kickedPlayer.id,
+            kickedPlayerName: kickedPlayer.name,
+            isSpy: kickedPlayer.role === 'spy'
+          });
+          endGame(roomId);
+        }
+
+      } else {
+        io.to(roomId).emit('noMajority', { message: 'No majority, next round.' });
       }
-    } else {
-      io.to(roomId).emit('noMajority', { message: 'No majority, next round.' });
+      startNextRound(roomId);
     }
-    startNextRound(roomId);
-  }
-});
+  });
 
 
   socket.on('markKick', ({ roomId, votedId }) => {
     const room = rooms[roomId];
     if (!room) return;
     room.kickMarks = room.kickMarks.filter(k => k.markerId !== socket.id);
-    room.kickMarks.push({ voterId: socket.id, votedId});
+    room.kickMarks.push({ voterId: socket.id, votedId });
     io.to(roomId).emit('kickMarksUpdate', { kickMarks: room.kickMarks });
   });
-  
+
 
   socket.on('spyIsGuessing', ({ roomId }) => {
     const room = rooms[roomId];
@@ -280,7 +293,7 @@ io.on('connection', socket => {
     io.to(roomId).emit('spyIsGuessing', { spyIsGuessing: false });
 
     room.spyGuessed = guessWord.trim().toLowerCase() === room.codeWord.toLowerCase();
-    endGame(roomId);
+    endGameGuess(roomId);
   });
 
   socket.on('nextGame', ({ roomId }) => {
