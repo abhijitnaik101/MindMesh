@@ -114,7 +114,7 @@ export default function GameScreen({
                       {h.playerName.charAt(0).toUpperCase()}
                     </div>
                     <div className="text-white font-medium text-base sm:text-lg tracking-wide">
-                      {h.playerName}
+                      {h.hint}
                     </div>
                   </div>
 
@@ -181,60 +181,64 @@ export default function GameScreen({
         <div className="w-4/5 max-w-md text-center mt-6">
           <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-wide mb-2">Vote Player</h3>
           <div className='mb-2 p-2 border border-gray-700 rounded-2xl space-y-1 h-48 overflow-scroll no-scrollbar'>
-          {alive.map((p) => {
-            const markers = localKickMarks.filter((k) => k.votedId === p.id);
-            
-            return (
-              <div
-                key={p.id}
-                className="flex sm:flex-nowrap items-center justify-between p-1 bg-slate-800 rounded-full shadow-lg gap-y-2"
-              >
+            {hints.map((h) => {
+              const isAlive = alive.some((p) => p.id === h.playerId);
+              if (!isAlive) return null;
 
-                {/* Player Info */}
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <div className="w-8 h-8 rounded-full bg-yellow-400 text-black flex items-center justify-center font-bold text-sm">
-                    {p.name.charAt(0).toUpperCase()}
+              const markers = localKickMarks.filter((k) => k.votedId === h.playerId);
+
+              return (
+                <div
+                  key={h.playerId}
+                  className="flex sm:flex-nowrap items-center justify-between p-1 bg-slate-800 rounded-full shadow-lg gap-y-2"
+                >
+
+                  {/* Player Info */}
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="w-8 h-8 rounded-full bg-yellow-400 text-black flex items-center justify-center font-bold text-sm">
+                      {h.playerName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="text-white font-medium text-base sm:text-lg">{h.hint}</div>
                   </div>
-                  <div className="text-white font-medium text-base sm:text-lg">{p.name}</div>
-                </div>
 
-                {/* Markers + Vote Button */}
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                  {(!voted && isAliveSelf) ? (
-                    <button
-                      onClick={() => submitVote(p.id)}
-                      className="px-3 py-1 rounded-full bg-red-500 text-red-100 text-sm font-bold shadow-sm shrink-0"
-                    >
-                      vote
-                    </button>
-                  ) : (
-                    <div className="px-3 py-1 rounded-full bg-gray-400 text-[#472d2d] text-sm font-bold shadow-sm shrink-0">voted</div>
-                  )}
+                  {/* Markers + Vote Button */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    {(!voted && isAliveSelf) ? (
+                      <button
+                        onClick={() => submitVote(h.playerId)}
+                        className="px-3 py-1 rounded-full bg-red-500 text-red-100 text-sm font-bold shadow-sm shrink-0"
+                      >
+                        vote
+                      </button>
+                    ) : (
+                      <div className="px-3 py-1 rounded-full bg-gray-400 text-[#472d2d] text-sm font-bold shadow-sm shrink-0">voted</div>
+                    )}
 
-                  {/* Vote Button */}
-                  <div className="flex gap-1 max-w-[100px] overflow-x-auto no-scrollbar">
-                    {markers.map((k, i) => {
-                      const markerName = players.find((pl) => pl.id === k.voterId)?.name || '';
-                      return (
-                        <div
-                          key={i}
-                          className="min-w-[24px] h-6 rounded-full bg-orange-400 text-[#472d2d] font-bold text-xs flex items-center justify-center"
-                        >
-                          {markerName.charAt(0).toUpperCase()}
-                        </div>
-                      );
-                    })}
+                    {/* Vote Marker Badges */}
+                    <div className="flex gap-1 max-w-[100px] overflow-x-auto no-scrollbar">
+                      {markers.map((k, i) => {
+                        const markerName = players.find((pl) => pl.id === k.voterId)?.name || '';
+                        return (
+                          <div
+                            key={i}
+                            className="min-w-[24px] h-6 rounded-full bg-orange-400 text-[#472d2d] font-bold text-xs flex items-center justify-center"
+                          >
+                            {markerName.charAt(0).toUpperCase()}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
           {!voted && (
             <WhiteButton onClick={() => submitVote(null)}>SKIP →</WhiteButton>
           )}
         </div>
       )}
+
     </div>
   );
 }
