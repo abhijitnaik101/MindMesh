@@ -32,6 +32,7 @@ function generateWords() {
 function createRoom(roomId) {
   rooms[roomId] = {
     players: [],
+    spy:null,
     codeWord: '',
     relatedWords: [],
     hints: [],
@@ -71,6 +72,7 @@ function assignRoles(roomId) {
     player.isAlive = true;
     player.isReady = false;
   });
+  room.spy = room.players[spyIndex];
   room.gameStarted = true;
 }
 function endGameGuess(roomId){
@@ -80,22 +82,24 @@ function endGameGuess(roomId){
   if (room.spyGuessed) {
     winner = 'spy';
   }
-  io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
+  const spy = room.spy;
+  io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord, spy: spy.name});
 
 }
 function endGame(roomId) {
   const room = rooms[roomId];
   if (!room) return;
+  const spy = room.spy;
   const alivePlayers = room.players.filter(p => p.isAlive);
   if (alivePlayers.some(p => p.role === 'spy')) {
     if (alivePlayers.length <= 2) {
       let winner = 'spy';
-      io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
+      io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord, spy: spy.name });
     }
   }
   else {
     let winner = 'citizens';
-    io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord });
+    io.to(roomId).emit('gameOver', { winner, codeWord: room.codeWord, spy: spy.name });
   }
 
 }
@@ -304,6 +308,7 @@ io.on('connection', socket => {
       p.isAlive = true;
       p.role = '';
     });
+    room.spy = null;
     room.gameStarted = false;
     room.hints = [];
     room.usedWords = [];
@@ -329,7 +334,7 @@ io.on('connection', socket => {
           if (room.players.length === 0) resetRoom(roomId);
           else io.to(roomId).emit('lobbyUpdate', { players: room.players });
         } else {
-          // Game started: wait 10 seconds for reconnection
+          //Game started: wait 10 seconds for reconnection
           const timeout = setTimeout(() => {
             if (disconnectedPlayers[socket.id]) {
               room.players = room.players.filter(p => p.id !== socket.id);
@@ -339,7 +344,6 @@ io.on('connection', socket => {
               console.log('💀 Player permanently disconnected:', player.name);
             }
           }, 10000);
-
           disconnectedPlayers[socket.id] = { roomId, playerName: player.name, timeout };
         }
       }

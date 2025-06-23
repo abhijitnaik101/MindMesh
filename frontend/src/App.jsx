@@ -10,6 +10,7 @@ import NoMajorityScreen from './components/NoMajorityScreen';
 
 
 const socket = io('https://mindmesh-7zpy.onrender.com', { autoConnect: false });
+//const socket = io('http://localhost:4000/', { autoConnect: false });
 
 export default function App() {
   // UI screens
@@ -129,9 +130,9 @@ export default function App() {
       if (spyIsGuessing) setError('Spy is guessing...');
     });
 
-    socket.on('gameOver', ({ winner, codeWord }) => {
+    socket.on('gameOver', ({ winner, codeWord, spy }) => {
       //setWinner(`${winner.toUpperCase()} wins! Word: "${codeWord}"`);
-      setWinner([winner.toLowerCase(), codeWord]);
+      setWinner([winner.toLowerCase(), codeWord, spy]);
       setScreen('gameOver');
     });
 
